@@ -1,0 +1,22 @@
+{
+  "name": "BinexTest",
+  "description": "Write me!",
+  "version": "0.1",
+  "perl": "6.*",
+  "authors": [
+    "Write me!"
+  ],
+  "auth": "Write me!",
+  "depends": [],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "Basic": "lib/Basic.pm6",
+    "BasicActions": "lib/BasicActions.pm6",
+    "BasicGrammar": "lib/BasicGrammar.pm6",
+    "BasicMeta": "lib/BasicMeta.rakumod"
+  },
+  "resources": [],
+  "license": "Write me!",
+  "source-url": "Write me!"
+}
