@@ -170,13 +170,27 @@ method BASIC (Mu $/) {
     my @statements;
     # declare variables that we found.  We these as terms in case they
     # lack a sigil (as is normal for BASIC).  Sneaky.
-    # my <var> = my $;
+    # my <var> = my $;                                  (if not in signature)
+    # my <var> = my $ = @BASIC-ARGUMENTS[<var-offset>]; (if in signature)
     @statements.push(RakuAST::Statement::Expression.new(
         expression =>RakuAST::VarDeclaration::Term.new(
             scope => 'my',
             name  => RakuAST::Name.from-identifier($_),
             initializer => RakuAST::Initializer::Assign.new(
-                RakuAST::VarDeclaration::Anonymous.new(:sigil('$'), :scope('my'))
+                $_ !(elem) @*BASIC-SIGNATURE
+                    ?? RakuAST::VarDeclaration::Anonymous.new(:sigil('$'), :scope('my'))
+                    !! RakuAST::VarDeclaration::Anonymous.new(:sigil('$'), :scope('my'),
+                           initializer => RakuAST::Initializer::Assign.new(
+                                RakuAST::ApplyPostfix.new(
+                                    operand => RakuAST::Var::Lexical.new('@BASIC-ARGUMENTS'),
+                                    postfix => RakuAST::Postcircumfix::ArrayIndex.new(
+                                        RakuAST::SemiList.new(
+                                            RakuAST::IntLiteral.new(@*BASIC-SIGNATURE.first($_, :k))
+                                        )
+                                    )
+                                )
+                           )
+                    )
             )
         )
     )) for %*BASIC-VARS.keys;
@@ -284,8 +298,17 @@ method routine_declarator:sym<method-basic> (Mu $/) {
     # this does not currently support (but soon hopefully!)
     $*PACKAGE.^add_basic:
         lk($/, 'name').Str,
+        # method <name> (*@BASIC-ARGUMENTS) { <basic> }
         EVAL RakuAST::Method.new(
             name => RakuAST::Name.from-identifier(lk($/, 'name').Str),
+            signature => RakuAST::Signature.new(
+                parameters => (
+                    RakuAST::Parameter.new(
+                        target => RakuAST::ParameterTarget::Var.new('@BASIC-ARGUMENTS'),
+                        slurpy => RakuAST::Parameter::Slurpy::Flattened
+                    ),
+                )
+            ),
             body => lk($/, 'BASIC').made
         )
 }

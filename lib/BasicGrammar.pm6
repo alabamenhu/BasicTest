@@ -10,6 +10,7 @@ token routine_declarator:sym<method-basic> {
         use QAST:from<NQP>; # allows access to HLL::Compiler, not strictly necessary though
         HLL::Compiler.lineof(self.orig(), self.from(), :cache(1))
     };
+    :my @*BASIC-SIGNATURE;
     # What we want to parse is this format: method-basic foo (A, B) { <code> }
     <sym> <.end_keyword> <.ws>            # method-basic
     $<name> = <[a..zA..Z]>+               #              foo
@@ -17,13 +18,15 @@ token routine_declarator:sym<method-basic> {
     ['('                                  #                  (
         [ <.ws>                           #
           $<var>=<[a..zA..Z]>+            #                   A  B
+         {@*BASIC-SIGNATURE.push:         #
+              $/.hash<var>.tail.Str }     #
           <.ws>                           #
         ]* %% ','                         #                    ,
     ')']?                                 #                       )
     <.ws>                                 #
-    '{'                                   #
-    <BASIC>
-    '}'
+    '{'                                   #                         {
+    <BASIC>                               #                           <code>
+    '}'                                   #                                  }
     # As noted elsewhere, a fully correct parse would actually use <nibble>
     # with the quote_lang set to BASIC but at the moment I can't figure out
     # how to do that, but this seems to work just fine.

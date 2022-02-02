@@ -27,15 +27,18 @@ At the present moment, note the following limitations
  
    * It's not possible to create lexically-scoped methods
    * It's not possible to create subs using the sublanguage
-   * Signatures are done via custom processing, and not via Raku's built in token (and presently, they aren't associated with lexical variables, though that will be fixed soon)
+   * Signatures are done via custom processing, and not via Raku's built in token (though that may be a plus in some cases!)
    * Multis are not yet supported (though it should be easy to support)
    * Traits are not yet supported
+   * A semicolon is needed after method declarations (the bracket doesn't auto-semicolon)
    
 Some of these limitations may be easier to lift once RakuAST is more mature, 
 others just require me to dedicate a bit more time to the module.
 
 
 ## History
+  * **v0.1.1** Signature support
+    * Signatures now handle passed variables
   * **v0.1.0** Initial version
     * Basic method support
     * Basic declarator support

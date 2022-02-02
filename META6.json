@@ -1,12 +1,12 @@
 {
-  "name": "BinexTest",
+  "name": "BasicTest",
   "description": "Write me!",
-  "version": "0.1",
+  "version": "0.1.1",
   "perl": "6.*",
   "authors": [
-    "Write me!"
+    "Matthew Stephen Stuckwisch"
   ],
-  "auth": "Write me!",
+  "auth": "git:alabamenhu",
   "depends": [],
   "build-depends": [],
   "test-depends": [],
