@@ -30,7 +30,6 @@ At the present moment, note the following limitations
    * Signatures are done via custom processing, and not via Raku's built in token (though that may be a plus in some cases!)
    * Multis are not yet supported (though it should be easy to support)
    * Traits are not yet supported
-   * A semicolon is needed after method declarations (the bracket doesn't auto-semicolon)
    
 Some of these limitations may be easier to lift once RakuAST is more mature, 
 others just require me to dedicate a bit more time to the module.

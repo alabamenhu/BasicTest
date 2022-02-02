@@ -36,7 +36,7 @@ token routine_declarator:sym<method-basic> {
     # using Raku's built in signature.  You may wish to use a custom signature
     # in order to more closely mirror signatures from your language.
     #
-    # The <?ENDSTMT> allows the final } to end a line
+    # The <?ENDSTMT> allows the final } to end a line without a semicolon
 }
 
 token BASIC {
