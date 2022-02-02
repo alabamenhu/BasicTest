@@ -10,7 +10,7 @@ class-basic Foo {
         50 GOTO 20
         60 LET A = 99
         70 RETURN A
-    };
+    }
 
     method-basic square (X) {
         10 LET Y = 0
@@ -19,7 +19,7 @@ class-basic Foo {
         40 LET Z = Z - 1
         50 IF Z > 0 THEN 30
         60 RETURN Y
-    };
+    }
 
     method-basic countdown (X) {
         10 PRINT X

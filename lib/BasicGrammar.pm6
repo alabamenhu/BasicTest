@@ -27,6 +27,7 @@ token routine_declarator:sym<method-basic> {
     '{'                                   #                         {
     <BASIC>                               #                           <code>
     '}'                                   #                                  }
+    <?ENDSTMT>
     # As noted elsewhere, a fully correct parse would actually use <nibble>
     # with the quote_lang set to BASIC but at the moment I can't figure out
     # how to do that, but this seems to work just fine.
@@ -34,6 +35,8 @@ token routine_declarator:sym<method-basic> {
     # Notice that the signature is parsed extremely basically, rather than
     # using Raku's built in signature.  You may wish to use a custom signature
     # in order to more closely mirror signatures from your language.
+    #
+    # The <?ENDSTMT> allows the final } to end a line
 }
 
 token BASIC {
