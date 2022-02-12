@@ -5,6 +5,12 @@ sub lk(Mu \match, \token) {
     match.hash.AT-KEY(token)
 }
 
+# For those looking to recreate this:
+#   - There is nothing in here for `multi`.
+#     That is covered elsewhere by the main grammar, and will be evident by $*MULTINESS being set to 'multi'
+#     If not in a multi, $*MULTINESS will be ''
+#     (it's possible for it to be 'proto'.  This does not yet support that.
+
 token routine_declarator:sym<method-basic> {
     :my $*LINE_NO := {
         use QAST:from<NQP>; # allows access to HLL::Compiler, not strictly necessary though
@@ -78,5 +84,3 @@ token BASIC_line-no {
         $*BASIC-LINE-NO = lk($/,'line-no').Int
     }
 }
-
-

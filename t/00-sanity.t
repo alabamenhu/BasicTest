@@ -3,7 +3,20 @@ use Basic;
 use Test;
 
 class-basic Foo {
-    method-basic foo {
+
+    multi method-basic mm {
+        10 RETURN 0
+    }
+    multi method-basic mm(A) {
+        10 LET B = A + 1
+        20 RETURN B
+    }
+    multi method-basic mm(A, B) {
+        10 LET C = A + B
+        20 RETURN C
+    }
+
+     method-basic foo {
         10 LET A = 0
         20 LET A = A + 1
         30 IF A > 5 THEN 60
@@ -32,5 +45,10 @@ class-basic Foo {
 
 is Foo.foo, 99;
 is Foo.square(5), 25;
+is Foo.mm, 0;
+is Foo.mm(1), 2;
+is Foo.mm(1000), 1001;
+is Foo.mm(5,4), 9;
+is Foo.mm(100,-50), 50;
 
 done-testing;

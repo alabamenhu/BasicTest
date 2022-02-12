@@ -4,11 +4,14 @@ unit role BASIC::Actions::Mixin;
 # but during this process, we don't have access to $/ via $<foo>
 sub lk(Mu \h, \k) { h.hash.AT-KEY: k }
 
-method BASIC_number  (Mu $/) { make RakuAST::IntLiteral($/.Str.Int)   }
-method BASIC_var     (Mu $/) { make RakuAST::Var::Lexical.new($/.Str) }
-method BASIC_parens  (Mu $/) { make lk($/,'BASIC_expr').made          }
-method BASIC_op      (Mu $/) { make RakuAST::Infix.new($/.Str)        }
-method BASIC_comp-op (Mu $/) { make RakuAST::Infix.new($/.Str)        }
+# BASIC uses integer division, so we need to convert / into div to avoid Rats.
+my \basic-to-raku-op = %( '+' => '+', '-' => '-', '/' => 'div', '*' => '*');
+
+method BASIC_number  (Mu $/) { make RakuAST::IntLiteral($/.Str.Int)              }
+method BASIC_var     (Mu $/) { make RakuAST::Var::Lexical.new($/.Str)            }
+method BASIC_parens  (Mu $/) { make lk($/,'BASIC_expr').made                     }
+method BASIC_op      (Mu $/) { make RakuAST::Infix.new(basic-to-raku-op{$/.Str}) }
+method BASIC_comp-op (Mu $/) { make RakuAST::Infix.new($/.Str)                   }
 method BASIC_thing   (Mu $/) {
     make .made with $/.hash<BASIC_number>;
     make .made with $/.hash<BASIC_var>;
@@ -168,9 +171,9 @@ method BASIC_line (Mu $/) {
 method BASIC_line-no (Mu $/) { make $/.Str.Int }
 method BASIC (Mu $/) {
     my @statements;
-    # declare variables that we found.  We these as terms in case they
-    # lack a sigil (as is normal for BASIC).  Sneaky.
-    # my <var> = my $;                                  (if not in signature)
+    # declare variables that we found that are NOT in the signature.
+    # We define these as terms in case they lack a sigil (as is normal for BASIC).  Sneaky.
+    # my <var> = my $;
     # my <var> = my $ = @BASIC-ARGUMENTS[<var-offset>]; (if in signature)
     @statements.push(RakuAST::Statement::Expression.new(
         expression =>RakuAST::VarDeclaration::Term.new(
@@ -193,7 +196,7 @@ method BASIC (Mu $/) {
                     )
             )
         )
-    )) for %*BASIC-VARS.keys;
+    )) for %*BASIC-VARS.keys.grep(* !(elem) @*BASIC-SIGNATURE);
 
     # Generate the data for the two main variables we'll be using
     # First, a list of each code object
@@ -292,23 +295,34 @@ method BASIC (Mu $/) {
 method routine_declarator:sym<method-basic> (Mu $/) {
     use MONKEY-SEE-NO-EVAL;
 
+    # generate the signature (should pull this out into a separate action/token)
+    my @parameters;
+    @parameters.push:
+        RakuAST::Parameter.new(target => RakuAST::ParameterTarget::Term.new(RakuAST::Name.from-identifier($_)))
+            for @*BASIC-SIGNATURE;
+    my $signature = @parameters
+        ?? RakuAST::Signature.new(parameters => @parameters.list)
+        !! RakuAST::Signature.new;
+
     # Note: You can use .^add_method directly here.
     # I used ^add_basic since I'll eventually be doing some weird stuff,
     # but you'll also want to be ready to parse for multis, etc, which
     # this does not currently support (but soon hopefully!)
-    $*PACKAGE.^add_basic:
-        lk($/, 'name').Str,
-        # method <name> (*@BASIC-ARGUMENTS) { <basic> }
-        EVAL RakuAST::Method.new(
-            name => RakuAST::Name.from-identifier(lk($/, 'name').Str),
-            signature => RakuAST::Signature.new(
-                parameters => (
-                    RakuAST::Parameter.new(
-                        target => RakuAST::ParameterTarget::Var.new('@BASIC-ARGUMENTS'),
-                        slurpy => RakuAST::Parameter::Slurpy::Flattened
-                    ),
-                )
-            ),
-            body => lk($/, 'BASIC').made
-        )
+
+    # method <name> (<signature>) { <basic> }
+    my $method = RakuAST::Method.new(
+        name => RakuAST::Name.from-identifier(lk($/, 'name').Str),
+        body => lk($/, 'BASIC').made,
+        signature => $signature
+    );
+
+    if $*MULTINESS eq 'multi' {
+        $*PACKAGE.^add_multi_basic:
+            lk($/, 'name').Str,
+            EVAL $method
+    } else {
+        $*PACKAGE.^add_basic:
+            lk($/, 'name').Str,
+            EVAL $method
+    }
 }
