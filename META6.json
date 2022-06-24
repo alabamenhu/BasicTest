@@ -1,7 +1,7 @@
 {
   "name": "BasicTest",
   "description": "Write me!",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "perl": "6.*",
   "authors": [
     "Matthew Stephen Stuckwisch"
@@ -11,9 +11,9 @@
   "build-depends": [],
   "test-depends": [],
   "provides": {
-    "Basic": "lib/Basic.pm6",
-    "BasicActions": "lib/BasicActions.pm6",
-    "BasicGrammar": "lib/BasicGrammar.pm6",
+    "Basic": "lib/Basic.rakumod",
+    "BasicActions": "lib/BasicActions.rakumod",
+    "BasicGrammar": "lib/BasicGrammar.rakumod",
     "BasicMeta": "lib/BasicMeta.rakumod"
   },
   "resources": [],

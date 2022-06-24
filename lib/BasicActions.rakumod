@@ -1,4 +1,4 @@
-unit role BASIC::Actions::Mixin;
+ unit role BASIC::Actions::Mixin;
 
 # I'm not consistent about using this helper function
 # but during this process, we don't have access to $/ via $<foo>
@@ -325,4 +325,35 @@ method routine_declarator:sym<method-basic> (Mu $/) {
             lk($/, 'name').Str,
             EVAL $method
     }
+}
+
+method routine_declarator:sym<basic> (Mu $/) {
+    use MONKEY-SEE-NO-EVAL;
+
+    # see docs for basic-method
+    my @parameters;
+    @parameters.push:
+        RakuAST::Parameter.new(target => RakuAST::ParameterTarget::Term.new(RakuAST::Name.from-identifier($_)))
+            for @*BASIC-SIGNATURE;
+    my $signature = @parameters
+        ?? RakuAST::Signature.new(parameters => @parameters.list)
+        !! RakuAST::Signature.new;
+
+    # sub <name> (<signature>) { <basic> }
+    my $sub = RakuAST::Sub.new(
+        name => RakuAST::Name.from-identifier(lk($/, 'name').Str),
+        body => lk($/, 'BASIC').made,
+        signature => $signature
+    );
+
+    # Note: this code assumes the pre-RakuAST compiler that expects QAST stuff.
+    # My understanding is that this will change once RakuAST has been completed, as
+    # much of the compile process will change substantially.
+    #
+    # I would translate the below as "Dear World Object, please insert the lexical symbol '&name'
+    # in the compile process's current (UNIT) scope with the initial value of (sub)"
+    $*W.install_lexical_symbol:
+        $*UNIT,
+        '&' ~ lk($/, 'name').Str,
+        EVAL $sub
 }

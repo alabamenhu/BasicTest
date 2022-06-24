@@ -1,0 +1,19 @@
+use BasicMeta;
+use Basic;
+use Test;
+
+basic foo {
+    10 RETURN 5
+}
+
+basic bar (X) {
+    10 LET Y = X + X
+    10 RETURN Y
+}
+
+is foo, 5;
+is bar(1), 2;
+is bar(2), 4;
+is bar(3), 6;
+
+done-testing;

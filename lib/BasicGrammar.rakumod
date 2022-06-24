@@ -45,6 +45,41 @@ token routine_declarator:sym<method-basic> {
     # The <?ENDSTMT> allows the final } to end a line without a semicolon
 }
 
+token routine_declarator:sym<basic> {
+    :my $*LINE_NO := {
+        use QAST:from<NQP>; # allows access to HLL::Compiler, not strictly necessary though
+        HLL::Compiler.lineof(self.orig(), self.from(), :cache(1))
+    };
+    :my @*BASIC-SIGNATURE;
+    # What we want to parse is this format: method-basic foo (A, B) { <code> }
+    <sym> <.end_keyword> <.ws>            # method-basic
+    $<name> = <[a..zA..Z]>+               #              foo
+    <.ws>                                 #
+    ['('                                  #                  (
+        [ <.ws>                           #
+          $<var>=<[a..zA..Z]>+            #                   A  B
+         {@*BASIC-SIGNATURE.push:         #
+              $/.hash<var>.tail.Str }     #
+          <.ws>                           #
+        ]* %% ','                         #                    ,
+    ')']?                                 #                       )
+    <.ws>                                 #
+    '{'                                   #                         {
+    <BASIC>                               #                           <code>
+    '}'                                   #                                  }
+    <?ENDSTMT>
+    # As noted elsewhere, a fully correct parse would actually use <nibble>
+    # with the quote_lang set to BASIC but at the moment I can't figure out
+    # how to do that, but this seems to work just fine.
+    #
+    # Notice that the signature is parsed extremely basically, rather than
+    # using Raku's built in signature.  You may wish to use a custom signature
+    # in order to more closely mirror signatures from your language.
+    #
+    # The <?ENDSTMT> allows the final } to end a line without a semicolon
+}
+
+
 token BASIC {
     # some of these maybe should be moved to the declarator section
     :my $*BASIC-LINE-NO = 0;

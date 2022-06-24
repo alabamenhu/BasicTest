@@ -22,13 +22,13 @@ Currently, by mimicking this module, the following is possible:
    * Creating a new method declarator that uses a custom language  
    In other words, between the braces, a totally different language
    * Use multi methods for said declarator
+   * Creating a new declarator that installs a lexical symbol (e.g. a sub)
    
 ## Limitations
 
 At the present moment, note the following limitations
  
    * Lexically-scoped methods aren't possible in the sublanguage yet
-   * Subs can't be created using the sublanguage
    * Traits are not yet supported
    * Signatures are done via custom processing, and not via Raku's built in token.  
    This isn't necessarily a bad thing: you may want to do signatures to mirror your sublang in some way.
@@ -38,6 +38,9 @@ others just require me to dedicate a bit more time to the module.
 
 
 ## History
+  * **v0.2** Initial sub support
+    * Via `basic` declarator (instead of `sub`)
+    * Currently `multi` not supported for basic subs
   * **v0.1.2** Multi support
     * Multi based on arity alone (it's basic, after all)
     * Improved code documentation
